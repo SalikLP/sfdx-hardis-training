@@ -6,6 +6,7 @@ a day, newest first, and a change goes under the date of the day it is made.
 ## 2026-10-11
 
 - Lab 3.6: the DORA metrics are read in the new DORA metrics panel of VS Code, one row per org of the pipeline, then exported as a Markdown report. No default org to set any more: the numbers come from the deployment jobs and the Pull Requests on GitHub.
+- Lab 3.6: the Overview now opens on the pipeline flow, which says how long a User Story takes to reach production and where it waits. The lead time of `main` is the one of the User Stories, 5.7 days, where the release Pull Request alone read 0.1.
 - Lab 3.6: new pictures of the gear menu, the Overview, the production tab and the Export menu, showing what a pipeline that released once looks like.
 - Labs 3.5, 3.7, 3.11 and the Level 3 introduction follow the same change. Lab 3.7 says which branch the hotfix counts on.
 - Lab 3.1: the gear menu picture shows the renamed DORA metrics entry.

@@ -5,7 +5,7 @@ description: "Livrez via preprod vers votre org de production, vérifiez-la, pui
 level: 3
 lab: 6
 lang: fr
-source_rev: "e3ae8060a6bf0588628035705fe023145aa5e899"
+source_rev: "3e5cf122064ef38f8c00fe0d04d3e6f7fe16e966"
 screenshots:
   - annotated/vscode/orgs-manager
   - annotated/vscode/pipeline-settings-menu-level3--dora
@@ -167,7 +167,7 @@ vous avez donnée à l'extension au [Lab 1.2](../level-1-contributor-basics/1-2-
 
 Il arrive sur son onglet **Overview** :
 
-![L'onglet Overview du panneau DORA metrics, avec une ligne par org majeure](../../_assets/annotated/vscode/dora-metrics.png)
+![L'onglet Overview du panneau DORA metrics, avec le parcours du pipeline et une ligne par org majeure](../../_assets/annotated/vscode/dora-metrics.png)
 
 Lisez le cadre avant les nombres :
 
@@ -176,15 +176,41 @@ Lisez le cadre avant les nombres :
   commencent les données d'une branche quand c'est plus d'une semaine après le début de la période.
   Ici elle le dit pour les quatre branches : votre pipeline est plus jeune que la période sur
   laquelle il est mesuré
-- **Needs attention** **(3)** n'est là que si sfdx-hardis a quelque chose à montrer, chaque ligne
+- **Pipeline flow** **(3)** suit vos User Stories d'une org à la suivante. Vous le lisez dans un
+  instant, ci-dessous
+- **Needs attention** **(4)** n'est là que si sfdx-hardis a quelque chose à montrer, chaque ligne
   avec la branche concernée et, quand il y a quelque chose à ouvrir, un bouton **Open**. Il connaît
-  quatre cas : le dernier job de déploiement d'une branche a échoué, des Pull Requests sont
+  cinq cas : le dernier job de déploiement d'une branche a échoué, des Pull Requests sont
   ouvertes depuis plus de 7 jours, le taux d'échec dépasse 10 % et a monté de 5 points depuis la
-  période précédente, rien n'a été déployé depuis 30 jours. Si vous avez renvoyé US-020 il y a plus
-  d'une semaine, elle est sur cette liste, et à raison : une Pull Request que personne ne merge et
-  que personne ne ferme est une décision que quelqu'un ne prend pas
-- Le tableau **(4)** contient une ligne par org majeure, dans l'ordre du pipeline, avec `main`
-  marquée **production**. Une ligne ouvre l'onglet de sa branche, celui de `main` étant **(5)**
+  période précédente, rien n'a été déployé depuis 30 jours, des User Stories attendent dans une org
+  depuis plus de 30 jours. Si vous avez renvoyé US-020 il y a plus d'une semaine, elle est sur cette
+  liste, et à raison : une Pull Request que personne ne merge et que personne ne ferme est une
+  décision que quelqu'un ne prend pas
+- Le tableau **(5)** contient une ligne par org majeure, dans l'ordre du pipeline, avec `main`
+  marquée **production**. Une ligne ouvre l'onglet de sa branche, celui de `main` étant **(6)**
+
+**Pipeline flow** répond à la question que le tableau laisse sans réponse : combien de temps une
+User Story met-elle pour atteindre la production, et où attend-elle. Lisez-le de gauche à droite :
+
+- Chaque case est une org du pipeline. Elle dit combien de User Stories sont dans cette org sans
+  être allées plus loin, et depuis combien de temps la plus ancienne y est. Les vôtres affichent
+  toutes **Nothing waiting** : vous venez de tout livrer. Sur un vrai projet, c'est là qu'un
+  release manager regarde en premier, et un clic sur une case liste les User Stories qui y
+  attendent
+- Entre deux cases, la flèche porte l'attente médiane : les jours entre le déploiement d'une User
+  Story dans une org et son déploiement dans la suivante. Les vôtres ont attendu **4 d** dans
+  `integration`, **0.8 d** dans `uat` et **0.2 d** dans `preprod`. La plus longue est marquée
+  **Longest wait**
+- **Time to production (median)**, à droite, est le trajet entier : de la création de la Pull
+  Request d'une User Story à la fin du job qui l'a déployée en production. **5.7 d, High**, sur les
+  dix User Stories que vous avez livrées
+- **Slowest changes to reach production** ouvre la liste derrière ce nombre, chaque User Story
+  avec le jour où elle a atteint chaque org. La plus lente est la toute première que vous avez
+  mergée : elle a attendu que le pipeline existe
+
+Une User Story est suivie à partir des seules Pull Requests. Merger `integration` dans `uat`
+emmène toutes les User Stories qui étaient dans `integration` à ce moment-là, et les jours sont
+comptés à partir de là.
 
 Chaque ligne porte cinq nombres. Chacun est noté **Elite**, **High**, **Medium** ou **Low**, sur la
 même échelle pour toutes les branches, ou affiche **No data** :
@@ -192,7 +218,7 @@ même échelle pour toutes les branches, ou affiche **No data** :
 | Colonne                  | Ce qu'elle compte vraiment                                                                                          | À quoi ressemble le bon                                                                                       |
 |--------------------------|---------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
 | **Deployments per week** | Les exécutions réussies du job de déploiement de la branche, divisées par la durée de la période                    | Hebdomadaire convient. Trimestriel veut dire que chaque livraison est énorme                                  |
-| **Lead time (median)**   | Par Pull Request mergée dans la branche : de sa création à la fin du job qui l'a déployée                           | Des jours, pas des semaines. Un long délai veut dire que du travail stagne                                    |
+| **Lead time (median)**   | Par User Story arrivée dans l'org : de la création de sa Pull Request à son déploiement dans cette org              | Des jours, pas des semaines. Un long délai veut dire que du travail stagne                                    |
 | **Failure rate**         | Les jobs de déploiement en échec, divisés par échecs plus réussites. Un job annulé n'est dans aucun                 | Sous 15 %. Au-dessus, le contrôle n'attrape pas ce qu'il devrait                                              |
 | **Recovery (median)**    | Les heures entre un job de déploiement en échec et le suivant qui réussit sur la même branche                       | Des heures                                                                                                    |
 | **Rework**               | Les Pull Requests d'une branche de correction, ou les réussites dans la journée d'un échec : le plus grand des deux | Bas. Lisez la note ci-dessous avant d'attendre du [Lab 3.7](3-7-hotfix-and-retrofit.md) qu'il le fasse bouger |
@@ -225,11 +251,13 @@ chacun est vrai et qu'aucun ne veut dire ce qu'un lecteur pressé en retiendrait
 - **Deployments: 0.1 / week, Low.** Un job réussi, divisé par une période de 90 jours qui était
   vide jusqu'à cette semaine. La note parle de la période, pas de vous. Choisissez **Last 30 days**
   et ce même déploiement unique pèse trois fois plus
-- **Lead time (median): 0.1 d, Elite.** Deux heures environ : la vie de la Pull Request de
-  livraison, de la pastille **+ PR** à la fin de son job de déploiement. Ce n'est pas le temps
-  qu'une User Story a mis pour atteindre la production : le panneau ne calcule pas le temps qu'un
-  changement passe entre les branches majeures. Pour cela, lisez le lead time d'`integration`,
-  puis ajoutez les jours où la livraison a attendu dans `uat` et `preprod`
+- **Lead time (median): 5.7 d, High.** Le temps que vos User Stories ont mis pour atteindre la
+  production, chacune depuis la création de sa propre Pull Request : le nombre que **Time to
+  production** affichait sur l'Overview. En dessous, **Pull Requests of this branch alone: 0.1 d**
+  est la vie de la Pull Request de livraison, de la pastille **+ PR** à la fin de son job de
+  déploiement. Deux heures environ, et ce serait noté Elite. Citer celui-là comme votre lead time
+  serait flatteur et faux : la livraison a été rapide, les User Stories qu'elle emmenait
+  attendaient depuis des jours
 - **Failure rate: 0 %, Elite**, et **Rework: 0 %, Elite**, sur un seul déploiement. Un job rouge la
   semaine prochaine et le premier affiche 50 %
 - **Recovery (median): No data.** Rien n'a échoué sur `main`, il n'y a donc rien à rattraper.
@@ -298,9 +326,13 @@ Elle mesure toutes les branches majeures, c'est-à-dire chaque
 `config/branches/.sfdx-hardis.<branch>.yml` du projet, quand une personne la lance. Dans un job de
 CI elle mesure la branche du job, et `--branches` les nomme explicitement. Ensuite, par branche :
 
-- **Le lead time** associe chaque Pull Request mergée au job réussi qui a déployé son commit de
-  merge ou, quand le fournisseur ne dit pas lequel c'est, au premier job réussi démarré dans les
-  14 jours après le merge. Sans l'un ni l'autre, la date du merge termine le lead time
+- **Un merge est déployé** par le job réussi de son commit de merge ou, quand le fournisseur ne
+  dit pas lequel c'est, par le premier job réussi démarré dans les 14 jours après le merge. Sans
+  l'un ni l'autre, la date du merge tient lieu de déploiement
+- **Le lead time** est compté par User Story : de la création de sa Pull Request à son déploiement
+  dans l'org de l'onglet, quel que soit le merge qui l'y a amenée. La ligne en dessous garde
+  l'ancienne lecture, les seules Pull Requests mergées dans cette branche, qui est aussi ce qu'une
+  notification vers Grafana transporte
 - **Rework** prend le plus grand de deux comptes, les Pull Requests dont la branche commence par
   `hotfix`, `fix` ou `bugfix`, et les jobs réussis qui suivent un job en échec dans les 24 heures,
   et le divise par les déploiements
@@ -308,6 +340,21 @@ CI elle mesure la branche du job, et `--branches` les nomme explicitement. Ensui
 - **Un job relancé sur le même commit** remplace son résultat précédent chez certains fournisseurs.
   Sur GitHub, **Re-run all jobs** garde l'exécution et son dernier résultat : les contrôles qui se
   sont arrêtés au rouge exprès aux étapes 2 et 3 comptent donc comme verts
+
+**Comment une User Story est suivie.** Aucun historique git n'est lu, seulement les Pull
+Requests :
+
+- Une Pull Request d'une branche majeure vers la suivante (`uat` vers `preprod`) emmène toutes
+  les User Stories qui étaient dans sa branche source quand elle a été mergée
+- Une Pull Request de promotion, la livraison sélective du [Lab 3.10](3-10-promote-a-subset-with-promotion-branches.md), emmène les Pull Requests
+  listées dans sa description et rien d'autre
+- Un hotfix mergé directement dans `preprod` est compté à partir de `preprod`. Le merge qui le
+  redescend vers `integration` ne lui fait pas parcourir le pipeline une seconde fois
+- Un changement cherry-pické à la main n'est pas suivi, pas plus qu'un changement mergé plus de
+  90 jours avant la période
+
+Les étapes entre les orgs sont les `mergeTargets` de chaque
+`config/branches/.sfdx-hardis.<branch>.yml`.
 
 **Une chose à vérifier sur n'importe quel projet.** Rework reconnaît un changement correctif à son
 nom de branche. Ce projet nomme ses branches de correction `fix/`, donc le hotfix que vous livrez
