@@ -1483,12 +1483,136 @@ for (const branch of doraBranches) {
     doraPerson(run.pr.mergedBy).failedDeployments += run.ok ? 0 : 1;
   }
 }
+
+// Pipeline flow: the rules of src/common/utils/doraPipelineUtils.ts in sfdx-hardis. A Pull
+// Request whose source is a major branch moves the stories that were in that branch when it
+// was merged; every other Pull Request is a story, which enters the pipeline where it was merged.
+// A story is in an org from the end of the deployment job of the merge that brought it.
+const doraMajors = u.branches.majors;
+const doraDeployedAt = (branch, pr) => {
+  const succeeded = branch.runs.filter((run) => run.ok);
+  const deployment = succeeded.find((run) => run.pr === pr) || succeeded.find((run) => run.queued >= pr.merged && run.queued - pr.merged <= 14 * DAY_MS);
+  return deployment ? deployment.finished : pr.merged;
+};
+const doraStories = [];
+const doraVehicles = [];
+doraBranches.forEach((branch, index) => {
+  const name = doraMajors[index];
+  for (const pr of branch.mergedPrs) {
+    if (doraMajors.includes(pr.branch)) {
+      doraVehicles.push({ pr, source: pr.branch, target: name, branch });
+    } else {
+      doraStories.push({ pr, entered: name, stops: new Map([[name, { arrivedAt: pr.merged, deployedAt: doraDeployedAt(branch, pr) }]]) });
+    }
+  }
+});
+for (const vehicle of doraVehicles.sort((a, b) => a.pr.merged - b.pr.merged)) {
+  // A merge back into an earlier branch moves nothing
+  if (doraMajors.indexOf(vehicle.source) > doraMajors.indexOf(vehicle.target)) {
+    continue;
+  }
+  for (const story of doraStories) {
+    const inSource = story.stops.get(vehicle.source);
+    if (inSource && inSource.arrivedAt <= vehicle.pr.merged && !story.stops.has(vehicle.target)) {
+      story.stops.set(vehicle.target, { arrivedAt: vehicle.pr.merged, deployedAt: doraDeployedAt(vehicle.branch, vehicle.pr) });
+    }
+  }
+}
+const doraStoryRef = (pr) => ({ id: String(pr.n), title: pr.title, url: `${DORA_WEB}/pull/${pr.n}`, author: person(pr.by).name });
+const doraLeadOf = (story, name) => (story.stops.get(name).deployedAt - story.pr.created) / DAY_MS;
+const doraWeeklyLead = (stories, name) => {
+  const weeks = new Map(doraWeekLabels().map((week) => [week, []]));
+  for (const story of stories) {
+    weeks.get(doraWeekKey(story.stops.get(name).deployedAt)).push(doraLeadOf(story, name));
+  }
+  return [...weeks.entries()].map(([week, values]) => ({ week, medianDays: values.length > 0 ? round1(doraMedian(values)) : null, changes: values.length }));
+};
+// Lead time of the stories that reached each branch, whatever merge brought them there
+doraBranches.forEach((branch, index) => {
+  const name = doraMajors[index];
+  const reached = doraStories.filter((story) => story.stops.has(name));
+  const lead = doraDistribution(reached.map((story) => doraLeadOf(story, name)));
+  branch.result.metrics.changeLeadTime = {
+    medianDays: lead.median,
+    p90Days: lead.p90,
+    avgDays: lead.avg,
+    level: doraLevelLowerIsBetter(lead.median, [1, 7, 30]),
+    previousMedianDays: null,
+    changes: reached.length,
+    weeks: doraWeeklyLead(reached, name).map(({ week, medianDays }) => ({ week, medianDays }))
+  };
+});
+const doraSteps = doraMajors.slice(1).map((to, index) => {
+  const from = doraMajors[index];
+  const through = doraStories.filter((story) => story.stops.has(from) && story.stops.has(to));
+  return {
+    from,
+    to,
+    changes: through.length,
+    viaPromotion: 0,
+    waitDays: doraDistribution(through.map((story) => (story.stops.get(to).deployedAt - story.stops.get(from).deployedAt) / DAY_MS)),
+    previousMedianDays: null
+  };
+});
+const doraMeasuredSteps = doraSteps.filter((step) => step.waitDays.median != null).sort((a, b) => b.waitDays.median - a.waitDays.median);
+const doraProduction = doraMajors[doraMajors.length - 1];
+const doraDelivered = doraStories.filter((story) => story.stops.has(doraProduction));
+const doraToProduction = doraDistribution(doraDelivered.map((story) => doraLeadOf(story, doraProduction)));
+const doraPipeline = {
+  stages: doraMajors.map((name, index) => {
+    const waiting = doraStories
+      .filter((story) => story.stops.has(name) && !doraMajors.slice(index + 1).some((later) => story.stops.has(later)))
+      .map((story) => ({ story, since: story.stops.get(name).deployedAt }))
+      .sort((a, b) => a.since - b.since);
+    const ages = waiting.map((entry) => (DORA_NOW - entry.since) / DAY_MS);
+    return {
+      branch: name,
+      isProduction: name === doraProduction,
+      entered: doraStories.filter((story) => story.entered === name).length,
+      waiting: {
+        // Nothing waits in production: it is where the pipeline ends
+        count: name === doraProduction ? 0 : waiting.length,
+        staleCount: name === doraProduction ? 0 : ages.filter((age) => age > 30).length,
+        oldestDays: name === doraProduction || ages.length === 0 ? null : round1(ages[0]),
+        medianDays: name === doraProduction || ages.length === 0 ? null : round1(doraMedian(ages)),
+        changes:
+          name === doraProduction
+            ? []
+            : waiting.slice(0, 10).map((entry, position) => ({ ...doraStoryRef(entry.story.pr), since: doraIso(entry.since), days: round1(ages[position]) }))
+      }
+    };
+  }),
+  steps: doraSteps,
+  timeToProduction: {
+    medianDays: doraToProduction.median,
+    p90Days: doraToProduction.p90,
+    avgDays: doraToProduction.avg,
+    level: doraLevelLowerIsBetter(doraToProduction.median, [1, 7, 30]),
+    previousMedianDays: null,
+    changes: doraDelivered.length
+  },
+  bottleneck: doraMeasuredSteps.length > 1 ? { from: doraMeasuredSteps[0].from, to: doraMeasuredSteps[0].to } : null,
+  weeks: doraWeeklyLead(doraDelivered, doraProduction),
+  slowestChanges: doraDelivered
+    .map((story) => ({ story, total: doraLeadOf(story, doraProduction) }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 10)
+    .map((entry) => ({
+      ...doraStoryRef(entry.story.pr),
+      enteredAt: entry.story.entered,
+      totalDays: round1(entry.total),
+      stages: [...entry.story.stops.entries()]
+        .sort(([, a], [, b]) => a.arrivedAt - b.arrivedAt)
+        .map(([name, stop]) => ({ branch: name, arrivedAt: doraIso(stop.arrivedAt), deployedAt: doraIso(stop.deployedAt) }))
+    })),
+  untraced: 0
+};
 writeJson(path.join(OUT, "dora-report.json"), {
   schemaVersion: 2,
   period: { days: DORA_DAYS, from: new Date(DORA_FROM).toISOString(), to: new Date(DORA_NOW).toISOString(), previousFrom: new Date(DORA_PREVIOUS_FROM).toISOString() },
   source: { provider: "sfdx-hardis GitHub connector", repository: `${DORA_WEB}.git` },
   branches: doraBranches.map((branch) => branch.result),
-  pipeline: null,
+  pipeline: doraPipeline,
   contributors: [...doraPeople.values()]
     .map(({ cycleDays, ...contributor }) => ({
       name: contributor.name,

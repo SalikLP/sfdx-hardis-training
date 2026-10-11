@@ -161,7 +161,7 @@ panel needs is the connection to GitHub you gave the extension in [Lab 1.2](../l
 
 It lands on its **Overview** tab:
 
-![The Overview tab of the DORA metrics panel, with one row per major org](../../_assets/annotated/vscode/dora-metrics.png)
+![The Overview tab of the DORA metrics panel, with the pipeline flow and one row per major org](../../_assets/annotated/vscode/dora-metrics.png)
 
 Read the frame before the numbers:
 
@@ -169,14 +169,37 @@ Read the frame before the numbers:
 - The line under the title **(2)** names the repository and the dates of the period, then says
   where the data of a branch starts when that is more than a week after the period does. Here it
   says so for all four branches: your pipeline is younger than the period it is measured over
-- **Needs attention** **(3)** is there only when sfdx-hardis has something to point at, each line
+- **Pipeline flow** **(3)** follows your User Stories from one org to the next. You read it in
+  a moment, below
+- **Needs attention** **(4)** is there only when sfdx-hardis has something to point at, each line
   with the branch it is about and, when there is something to open, an **Open** button. It knows
-  four cases: the last deployment job of a branch failed, Pull Requests have been open for more
+  five cases: the last deployment job of a branch failed, Pull Requests have been open for more
   than 7 days, the failure rate is above 10 % and rose by 5 points since the period before, nothing
-  was deployed for 30 days. If you sent US-020 back more than a week ago, it is on that list, and
-  rightly so: a Pull Request nobody merges and nobody closes is a decision somebody is not making
-- The table **(4)** holds one row per major org, in the order of the pipeline, with `main` marked
-  **production**. A row opens the tab of its branch, the one of `main` being **(5)**
+  was deployed for 30 days, User Stories have been waiting in an org for more than 30 days. If you
+  sent US-020 back more than a week ago, it is on that list, and rightly so: a Pull Request nobody
+  merges and nobody closes is a decision somebody is not making
+- The table **(5)** holds one row per major org, in the order of the pipeline, with `main` marked
+  **production**. A row opens the tab of its branch, the one of `main` being **(6)**
+
+**Pipeline flow** answers the question the table cannot: how long does a User Story take to reach
+production, and where does it wait. Read it from left to right:
+
+- Each box is an org of the pipeline. It says how many User Stories are in that org and went no
+  further, and how long the oldest has been there. Yours all read **Nothing waiting**: you have
+  just released everything. On a real project this is where a release manager looks first, and a
+  click on a box lists the User Stories waiting in it
+- Between two boxes, the arrow carries the median wait: the days between the deployment of a User
+  Story in one org and its deployment in the next. Yours waited **4 d** in `integration`,
+  **0.8 d** in `uat` and **0.2 d** in `preprod`. The longest of them is marked **Longest wait**
+- **Time to production (median)**, on the right, is the whole trip: from the creation of the Pull
+  Request of a User Story to the end of the job that deployed it to production. **5.7 d, High**,
+  over the ten User Stories you delivered
+- **Slowest changes to reach production** opens the list behind that number, each User Story with
+  the day it reached each org. The slowest is the first one you ever merged: it waited for the
+  pipeline to exist
+
+A User Story is followed from the Pull Requests alone. Merging `integration` into `uat` carries
+every User Story that was in `integration` at that moment, and the days are counted from there.
 
 Each row carries five numbers. Each one is rated **Elite**, **High**, **Medium** or **Low**, on the
 same scale for every branch, or reads **No data**:
@@ -184,7 +207,7 @@ same scale for every branch, or reads **No data**:
 | Column                   | What it actually counts                                                                          | What good looks like                                                                        |
 |--------------------------|--------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
 | **Deployments per week** | Successful runs of the deployment job of the branch, divided by the length of the period         | Weekly is fine. Quarterly means every release is enormous                                   |
-| **Lead time (median)**   | Per Pull Request merged into the branch: its creation, to the end of the job that deployed it    | Days, not weeks. A long lead time means work is sitting somewhere                           |
+| **Lead time (median)**   | Per User Story that reached the org: the creation of its Pull Request, to its deployment there   | Days, not weeks. A long lead time means work is sitting somewhere                           |
 | **Failure rate**         | Failed deployment jobs, divided by failed plus succeeded. A cancelled job is in neither          | Below 15 %. Above that, the check is not catching what it should                            |
 | **Recovery (median)**    | Hours from a failed deployment job to the next one that succeeds on the same branch              | Hours                                                                                       |
 | **Rework**               | Pull Requests from a fix branch, or successes within a day of a failure, whichever is the larger | Low. Read the note below before you expect [Lab 3.7](3-7-hotfix-and-retrofit.md) to move it |
@@ -217,11 +240,12 @@ is true and none of them means what a hurried reader would take from it:
 - **Deployments: 0.1 / week, Low.** One successful job, divided by a period of 90 days that was
   empty until this week. The rating is about the period, not about you. Pick **Last 30 days** and
   the same single deployment weighs three times as much
-- **Lead time (median): 0.1 d, Elite.** A couple of hours: the life of the release Pull Request,
-  from the **+ PR** chip to the end of its deployment job. It is not the time a User Story took to
-  reach production: the panel does not compute how long a change spends between the major
-  branches. For that, read the lead time of `integration`, then add the days the release waited in
-  `uat` and `preprod`
+- **Lead time (median): 5.7 d, High.** The time your User Stories took to reach production, each
+  one from the creation of its own Pull Request: the number **Time to production** showed on the
+  Overview. Under it, **Pull Requests of this branch alone: 0.1 d** is the life of the release Pull
+  Request, from the **+ PR** chip to the end of its deployment job. A couple of hours, and it would
+  rate Elite. Quoting that one as your lead time would be flattering and wrong: the release was
+  quick, the User Stories it carried had been waiting for days
 - **Failure rate: 0 %, Elite**, and **Rework: 0 %, Elite**, over one deployment. One red job next
   week and the first reads 50 %
 - **Recovery (median): No data.** Nothing failed on `main`, so there is nothing to recover from.
@@ -285,9 +309,13 @@ It measures every major branch, which means every `config/branches/.sfdx-hardis.
 the project, when a person runs it. In a CI job it measures the branch of the job, and `--branches`
 names them explicitly. Then, per branch:
 
-- **Lead time** pairs each merged Pull Request with the successful job that deployed its merge
-  commit, or, when the provider does not say which one that is, with the first successful job
-  started within 14 days of the merge. With neither, the merge date ends the lead time
+- **A merge is deployed** by the successful job of its merge commit, or, when the provider does
+  not say which one that is, by the first successful job started within 14 days of the merge. With
+  neither, the merge date stands for the deployment
+- **Lead time** is counted per User Story: from the creation of its Pull Request to its deployment
+  in the org of the tab, whatever merge brought it there. The line under it keeps the older
+  reading, the Pull Requests merged into that branch alone, which is also what a notification to
+  Grafana carries
 - **Rework** takes the larger of two counts, the Pull Requests whose branch starts with `hotfix`,
   `fix` or `bugfix`, and the successful jobs that follow a failed one within 24 hours, and divides
   it by the deployments
@@ -295,6 +323,19 @@ names them explicitly. Then, per branch:
 - **A job run again on the same commit** replaces its previous result on some providers. On
   GitHub, **Re-run all jobs** keeps the run and its last result, so the checks that stopped red on
   purpose in steps 2 and 3 count as green
+
+**How a User Story is followed.** No git history is read, only the Pull Requests:
+
+- A Pull Request from a major branch into the next one (`uat` into `preprod`) carries every User
+  Story that was in its source branch when it was merged
+- A promotion Pull Request, the selective kind of [Lab 3.10](3-10-promote-a-subset-with-promotion-branches.md), carries the Pull Requests listed in
+  its description and nothing else
+- A hotfix merged straight into `preprod` is counted from `preprod`. The merge that brings it
+  back down to `integration` does not send it through the pipeline a second time
+- A change cherry-picked by hand is not followed, and neither is one merged more than 90 days
+  before the period
+
+The steps between the orgs are the `mergeTargets` of each `config/branches/.sfdx-hardis.<branch>.yml`.
 
 **One thing to check on any project.** Rework recognises a corrective change by its branch name.
 This project names its fix branches `fix/`, so the hotfix you ship in [Lab 3.7](3-7-hotfix-and-retrofit.md) counts, in the

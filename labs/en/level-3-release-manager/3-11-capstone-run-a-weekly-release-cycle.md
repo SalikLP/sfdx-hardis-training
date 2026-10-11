@@ -100,8 +100,8 @@ this release is for, and put them in the description of the Pull Request from `p
 ### Friday: measure
 
 Open the **DORA metrics** panel from the gear menu of the **DevOps Pipeline**, as in [Lab 3.6](3-6-release-to-production-and-read-dora-metrics.md), and
-read the row of `main`, then the one of `integration`. Export the report again, **Export** then
-**Markdown report**, and compare it with the baseline you took in [Lab 3.6](3-6-release-to-production-and-read-dora-metrics.md).
+read **Time to production** in the pipeline flow, the row of `main`, then the one of
+`integration`. Export the report again, **Export** then **Markdown report**, and compare it with the baseline you took in [Lab 3.6](3-6-release-to-production-and-read-dora-metrics.md).
 
 The panel compares each number with the previous period by itself, with an arrow. Your pipeline is
 younger than the 90 days of a period, so the period before is empty and no arrow is drawn yet: this
