@@ -15,18 +15,11 @@ branchPrefixChoices:
     title: "Fix: correct something that is broken"
   - value: retrofit
     title: "Retrofit: merge production back down into the pipeline after a hotfix (release manager)"
-newTaskNameRegex: '^US-\d{3}-[a-z0-9-]+$'
-newTaskNameRegexExample: "US-014-panels-required"
-# The stories live in the backlog of this course, not in a ticketing tool. These
-# keys let the Pull Request comments link every US-nnn they meet to its page, and
-# write its title next to the link, read from the JSON the site publishes per story.
-genericTicketingProviderRegex: "(US-[0-9]{3})"
-genericTicketingProviderUrlBuilder: "https://sfdx-hardis-training.cloudity.com/BACKLOG/{REF}/"
-genericTicketingProviderDetailsUrlBuilder: "https://sfdx-hardis-training.cloudity.com/BACKLOG/{REF}.json"
-# A step somebody has to do by hand around a deployment is declared as a deployment
-# action of type manual (Lab 2.4), not in a spreadsheet kept somewhere else. With
-# this, Save / Publish sends you to the DevOps Pipeline panel instead of asking
-# for the URL of a manual actions file.
+newTaskNameRegex: ^US-\d{3}-[a-z0-9-]+$
+newTaskNameRegexExample: US-014-panels-required
+genericTicketingProviderRegex: (US-[0-9]{3})
+genericTicketingProviderUrlBuilder: https://sfdx-hardis-training.cloudity.com/BACKLOG/{REF}/
+genericTicketingProviderDetailsUrlBuilder: https://sfdx-hardis-training.cloudity.com/BACKLOG/{REF}.json
 manualActionsMode: sfdxHardis
 failValidationOnPendingManualActions: true
 testLevel: RunLocalTests
@@ -109,7 +102,6 @@ customCommands:
         tooltip: Puts your repository back to the start of Level 1
         command: node scripts/training.mjs reset --level 1
         helpUrl: https://sfdx-hardis-training.cloudity.com/en/level-1-contributor-basics/
-
   - id: training-level-2
     label: "Training: Level 2"
     description: Contributor advanced - the commands the Level 2 labs ask for
@@ -180,7 +172,6 @@ customCommands:
         tooltip: Puts your repository back to the start of Level 2
         command: node scripts/training.mjs reset --level 2
         helpUrl: https://sfdx-hardis-training.cloudity.com/en/level-2-contributor-advanced/
-
   - id: training-level-3
     label: "Training: Level 3"
     description: Release Manager - the commands the Level 3 labs ask for
@@ -282,3 +273,4 @@ useSmartDeploymentTests: false
 allowedPromotionSteps:
   - source: uat
     target: preprod
+monitoringRepository: https://github.com/SalikLP/sfdx-hardis-training-monitoring
