@@ -1,0 +1,9 @@
+commandsPostDeploy:
+  - id: ac508c5c-09da-4d38-a7dc-54da7acb0912
+    label: Seed Templates
+    type: data
+    command: ""
+    parameters:
+      sfdmuProject: HandoverData
+    runOnlyOnceByOrg: true
+    context: process-deployment-only
