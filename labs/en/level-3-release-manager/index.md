@@ -8,7 +8,7 @@ lang: en
 
 # Level 3 - Salesforce DevOps release manager
 
-**Time**: about 6 h 55.
+**Time**: about 8 h.
 
 **Before you start**: [Level 1](../level-1-contributor-basics/index.md) **and** [Level 2](../level-2-contributor-advanced/index.md). Both
 are required, and the badge audit checks both before it looks at anything here.
@@ -20,7 +20,7 @@ are exactly what Level 2 puts you through. Somebody who has never solved a deplo
 judge whether a contributor solved theirs properly, and the reviews they give will be about
 formatting.
 
-If you skipped Level 2, do it. It is four hours and it is the difference between approving Pull
+If you skipped Level 2, do it. It is a few hours and it is the difference between approving Pull
 Requests and understanding them.
 
 ## The story
@@ -72,17 +72,17 @@ Either route runs the same thing.
 
 | Lab                                                       | Title                                                        | Time   |
 |-----------------------------------------------------------|--------------------------------------------------------------|--------|
-| [3.1](3-1-configure-the-pipeline-up-to-production.md)     | Configure the CI/CD pipeline up to production                | 50 min |
-| [3.2](3-2-review-a-contributor-pull-request.md)           | Review and merge a contributor Pull Request                  | 25 min |
-| [3.3](3-3-deploy-to-integration-and-read-the-log.md)      | Read the deployment log, and what .forceignore hides from it | 45 min |
+| [3.1](3-1-configure-the-pipeline-up-to-production.md)     | Configure the CI/CD pipeline up to production                | 1 h 05 |
+| [3.2](3-2-review-a-contributor-pull-request.md)           | Review and merge a contributor Pull Request                  | 20 min |
+| [3.3](3-3-deploy-to-integration-and-read-the-log.md)      | Read the deployment log, and what .forceignore hides from it | 1 h 15 |
 | [3.4](3-4-merge-colliding-pull-requests.md)               | Three Pull Requests collide: choose the merge order          | 35 min |
 | [3.5](3-5-promote-to-uat-and-write-release-notes.md)      | Promote to UAT and write the release notes                   | 35 min |
-| [3.6](3-6-release-to-production-and-read-dora-metrics.md) | Release to production and read your DORA metrics             | 35 min |
-| [3.7](3-7-hotfix-and-retrofit.md)                         | Production is broken: hotfix and retrofit                    | 35 min |
-| [3.8](3-8-monitor-your-production-org.md)                 | Monitor your production org                                  | 35 min |
-| [3.9](3-9-generate-the-project-documentation.md)          | Generate the Salesforce project documentation                | 20 min |
-| [3.10](3-10-promote-a-subset-with-promotion-branches.md)  | Promote a subset with promotion branches (Beta)              | 55 min |
-| [3.11](3-11-capstone-run-a-weekly-release-cycle.md)       | Capstone: run a weekly release cycle                         | 45 min |
+| [3.6](3-6-release-to-production-and-read-dora-metrics.md) | Release to production and read your DORA metrics             | 1 h 10 |
+| [3.7](3-7-hotfix-and-retrofit.md)                         | Production is broken: hotfix and retrofit                    | 50 min |
+| [3.8](3-8-monitor-your-production-org.md)                 | Monitor your production org                                  | 30 min |
+| [3.9](3-9-generate-the-project-documentation.md)          | Generate the Salesforce project documentation                | 15 min |
+| [3.10](3-10-promote-a-subset-with-promotion-branches.md)  | Promote a subset with promotion branches (Beta)              | 50 min |
+| [3.11](3-11-capstone-run-a-weekly-release-cycle.md)       | Capstone: run a weekly release cycle                         | 20 min |
 
 ## One more org
 
@@ -94,10 +94,12 @@ Before Lab 3.1, sign up for one more free Developer Edition org at
 [developer.salesforce.com/signup](https://developer.salesforce.com/signup) and connect it in **Orgs
 Manager** with the alias `helios-preprod`. Then seed both Developer Edition orgs with
 **Training: Level 3 > Set up one of my training orgs**: `helios-preprod`, and `helios-prod`, which
-until now only created the others and held nothing.
+until now only created the others and held nothing. If it stops on `Profile Helios Crew`, the
+**If it goes wrong** section of [Lab 3.1](3-1-configure-the-pipeline-up-to-production.md) says why.
 
-`helios-prod` gets the same sources as the other orgs. Nothing seeds a deployment history, so the
-DORA report in Lab 3.6 sees only the seeding and the deployments you make yourself.
+`helios-prod` gets the same sources as the other orgs. Nothing seeds a deployment history, and the
+seeding itself is not a deployment of the pipeline, so the DORA metrics of Lab 3.6 hold only the
+deployment jobs your own merges ran.
 
 If a scratch org expired since Level 2, **Training: Level 3 > Set up my training environment**
 rebuilds it first.

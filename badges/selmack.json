@@ -9,9 +9,10 @@
       "issuer": {
         "name": "Cloudity",
         "url": "https://cloudity.com",
-        "course": "https://sfdx-hardis-training.github.io"
+        "course": "https://sfdx-hardis-training.cloudity.com"
       },
       "issuedOn": "2026-10-06",
+      "issuedAt": "2026-10-06T05:06:34Z",
       "evidence": [
         {
           "type": "Repository",
@@ -22,8 +23,8 @@
           "url": "https://github.com/hardisgroupcom/sfdx-hardis-training/issues/86"
         }
       ],
-      "image": "https://sfdx-hardis-training.github.io/badges/img/selmack-level-1.svg",
-      "bannerImage": "https://sfdx-hardis-training.github.io/badges/img/banner-level-1.svg",
+      "image": "https://sfdx-hardis-training.cloudity.com/badges/img/selmack-level-1.svg",
+      "bannerImage": "https://sfdx-hardis-training.cloudity.com/badges/img/banner-level-1.svg",
       "superbadge": false,
       "checksPassed": 6,
       "checksTotal": 6
@@ -36,9 +37,10 @@
       "issuer": {
         "name": "Cloudity",
         "url": "https://cloudity.com",
-        "course": "https://sfdx-hardis-training.github.io"
+        "course": "https://sfdx-hardis-training.cloudity.com"
       },
       "issuedOn": "2026-10-10",
+      "issuedAt": "2026-10-10T22:03:02Z",
       "evidence": [
         {
           "type": "Repository",
@@ -49,8 +51,8 @@
           "url": "https://github.com/hardisgroupcom/sfdx-hardis-training/issues/111"
         }
       ],
-      "image": "https://sfdx-hardis-training.github.io/badges/img/selmack-level-2.svg",
-      "bannerImage": "https://sfdx-hardis-training.github.io/badges/img/banner-level-2.svg",
+      "image": "https://sfdx-hardis-training.cloudity.com/badges/img/selmack-level-2.svg",
+      "bannerImage": "https://sfdx-hardis-training.cloudity.com/badges/img/banner-level-2.svg",
       "superbadge": false,
       "checksPassed": 14,
       "checksTotal": 14

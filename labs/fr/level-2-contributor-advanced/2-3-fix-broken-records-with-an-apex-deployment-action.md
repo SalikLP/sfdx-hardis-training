@@ -5,7 +5,7 @@ description: "Rendre un champ obligatoire se déploie au vert et casse les enreg
 level: 2
 lab: 3
 lang: fr
-source_rev: "9c652820abe61fac27fa86bac9eba269af742274"
+source_rev: "cda1fdb6fea35c5a457c5713e75ea9b45b9f9749"
 screenshots:
   - annotated/vscode/pipeline-cards--my-pull-request
   - annotated/vscode/pipeline-cards--new-user-story
@@ -24,7 +24,7 @@ depends_on:
 
 **Niveau** : 2 Contributeur avancé
 
-**Durée** : ~30 min
+**Durée** : ~30 min<!-- observed --> (observé : médiane 34 min, 6 participants, le plus rapide 15 min)<!-- /observed -->
 
 **Vous allez** : rencontrer un échec qu'aucune correction de métadonnée ne résout, et découvrir
 l'outil qui existe pour cela : une deployment action.
@@ -64,10 +64,10 @@ Pipeline. Nom `US-024-crew-size-required`, org `helios-dev`.
 ![La carte New User Story du panneau DevOps Pipeline](../../_assets/annotated/vscode/pipeline-cards--new-user-story.png)
 
 Dans `helios-dev` : **Setup > Object Manager > Installation > Fields & Relationships > Crew Size >
-Edit**, cochez **Required**, **Save**.
+Edit**, cochez **Required**.
 
-Salesforce vous avertit au sujet des appels API et Apex, vous demande de **Confirm**, et
-l'enregistre. Pas un mot sur vos données, alors que la plupart des installations de votre org n'ont pas de
+Dès que la case est cochée, Salesforce vous avertit au sujet des appels API et Apex et vous demande
+de confirmer. Cliquez sur **Confirm**, puis **Save**. Pas un mot sur vos données, alors que la plupart des installations de votre org n'ont pas de
 crew size. Retenez-le : c'est tout ce lab.
 
 Faites un retrieve du champ avec **Commit changes** (le champ, rien d'autre), commitez-le, **Save /
@@ -104,11 +104,16 @@ erreur, avec un lien vers la règle.
 Le contrôle passe. **Ne mergez pas encore.**
 
 Ouvrez `helios-dev`, trouvez une installation sans crew size, changez n'importe quoi dessus, et
-enregistrez.
+enregistrez. L'enregistrement refuse :
 
 ```
-Required fields are missing: [Crew_Size__c]
+We hit a snag.
+Review the following fields
+  • Crew Size
 ```
+
+Le même refus s'écrit `Required fields are missing: [Crew_Size__c]` quand il vient d'Apex ou de
+l'API, et c'est ainsi qu'un script le rencontre.
 
 **Salesforce impose un champ obligatoire à l'enregistrement, pas sur les données déjà présentes.** Il
 a parfaitement accepté de rendre le champ obligatoire alors que la plupart des installations
@@ -251,7 +256,9 @@ Le contrôle repasse, et son commentaire a maintenant une ligne **Deployment act
 tableau : votre remplissage, **🕒 1 after the merge**, parce que c'est le job de validation et qu'il
 ne change rien dans l'org. Ouvrez la section repliée **🛠️ Deployment actions of this job (1)** en
 dessous : le remplissage, **after** le déploiement, avec la raison **Runs after the merge only**.
-Mergez.
+
+**Mergez maintenant la Pull Request.** Sur sa page GitHub, choisissez **Squash and merge**, puis
+cliquez sur **Squash and merge** et **Confirm squash and merge**, comme au [Lab 1.6](../level-1-contributor-basics/1-6-pull-request-deployment-check-and-merge.md).
 
 Le job de déploiement vers `integration` le lance, pour de vrai, juste **après** le déploiement :
 ouvrez son log dans l'onglet **Actions** et vous y trouvez le déploiement, puis l'action qui démarre,
@@ -313,6 +320,15 @@ Documentation de la commande : [hardis:project:deploy:smart](https://sfdx-hardis
 - Aucune étape manuelle effectuée par qui que ce soit dans quelque org que ce soit
 
 ## En cas de problème
+
+**Le fichier d'actions s'appelle `.sfdx-hardis.draft.yml`, ou le check s'arrête sur *Draft deployment actions file found*.**
+Vous avez ajouté l'action alors que le panneau ne connaissait aucune Pull Request pour votre
+branche : la carte **My Pull Request** indiquait *Pull Request not created yet*, et l'action a été
+gardée dans un brouillon. Le pipeline ne lit que `scripts/actions/.sfdx-hardis.` suivi du numéro de
+la Pull Request et de `.yml` : un brouillon, ou un fichier renommé à votre idée, n'est jamais
+exécuté. Une fois votre Pull Request créée, rouvrez le panneau **DevOps Pipeline** et cliquez sur
+**Refresh** : il renomme le brouillon d'après votre Pull Request et vous le dit dans une
+notification. Committez le fichier renommé, puis **Save / Publish**.
 
 **L'action n'apparaît pas dans l'onglet Deployment Actions.**
 Le panneau lit la Pull Request depuis votre fork (votre copie personnelle du repository du cours sur

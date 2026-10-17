@@ -24,7 +24,7 @@ depends_on:
 
 **Level**: 2 Contributor advanced
 
-**Time**: ~30 min
+**Time**: ~30 min<!-- observed --> (observed: median 34 min, 6 learners, fastest 15 min)<!-- /observed -->
 
 **You will**: hit a failure that no amount of metadata fixing solves, and learn the tool that exists
 for it: a deployment action.
@@ -64,10 +64,11 @@ panel. Name `US-024-crew-size-required`, org `helios-dev`.
 ![The New User Story card of the DevOps Pipeline panel](../../_assets/annotated/vscode/pipeline-cards--new-user-story.png)
 
 In `helios-dev`: **Setup > Object Manager > Installation > Fields & Relationships > Crew Size >
-Edit**, tick **Required**, **Save**.
+Edit**, tick **Required**.
 
-Salesforce warns you about API and Apex callers, asks you to **Confirm**, and saves it. Not a word
-about your data, although most installations in your org have no crew size.
+The moment the box is ticked, Salesforce warns you about API and Apex callers and asks you to
+**Confirm**. Confirm, then **Save**. Not a word about your data, although most installations in
+your org have no crew size.
 Remember that: it is the whole of this lab.
 
 Bring the field down with **Commit changes** (the field, nothing else), commit it, **Save /
@@ -102,11 +103,17 @@ sfdx-hardis comment even said so, in the tip folded under each error, with a lin
 
 The check passes. **Do not merge yet.**
 
-Open `helios-dev`, find an installation with no crew size, change anything at all on it, and save.
+Open `helios-dev`, find an installation with no crew size, change anything at all on it, and
+save. The record refuses:
 
 ```
-Required fields are missing: [Crew_Size__c]
+We hit a snag.
+Review the following fields
+  • Crew Size
 ```
+
+The same refusal reads `Required fields are missing: [Crew_Size__c]` when it comes from Apex or
+the API, which is how a script meets it.
 
 **Salesforce enforces a required field on save, not on the data that is already there.** It was
 perfectly happy to make the field required while most installations had it empty, and the green
@@ -241,7 +248,10 @@ after your Pull Request. Commit them all, then **Save / Publish**.
 The check passes again, and its comment now has a **Deployment actions** row in its table: your
 backfill, **🕒 1 after the merge**, because this is the validation job and it changes nothing in the
 org. Open the folded **🛠️ Deployment actions of this job (1)** below it: the backfill, **after**
-the deployment, with the reason **Runs after the merge only**. Merge.
+the deployment, with the reason **Runs after the merge only**.
+
+**Now merge the Pull Request.** On its GitHub page, choose **Squash and merge**, then click **Squash
+and merge** and **Confirm squash and merge**, as in [Lab 1.6](../level-1-contributor-basics/1-6-pull-request-deployment-check-and-merge.md).
 
 The deployment job to `integration` runs it, for real, right **after** the deployment: open its log
 in the **Actions** tab and you find the deployment, then the action starting, then the
@@ -299,6 +309,14 @@ Command documentation: [hardis:project:deploy:smart](https://sfdx-hardis.cloudit
 - No manual step performed by anybody in any org
 
 ## If it goes wrong
+
+**The action file is called `.sfdx-hardis.draft.yml`, or the check stops on *Draft deployment actions file found*.**
+You added the action while the panel knew no Pull Request for your branch: the **My Pull Request**
+card read *Pull Request not created yet*, so the action was kept in a draft. The pipeline only reads
+`scripts/actions/.sfdx-hardis.` followed by the number of the Pull Request and `.yml`, so a draft, or
+a file renamed to a name of your own, is never run. Once your Pull Request exists, open the
+**DevOps Pipeline** panel again and click **Refresh**: it renames the draft after your Pull Request
+and tells you so in a notification. Commit the renamed file, then **Save / Publish**.
 
 **The action does not appear in the Deployment Actions tab.**
 The panel reads the Pull Request from your fork (your own copy of the course repository on GitHub, for example `github.com/my-username/sfdx-hardis-training`). If the Pull Request was opened against the original

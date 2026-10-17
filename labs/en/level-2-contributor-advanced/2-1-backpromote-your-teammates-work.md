@@ -27,7 +27,7 @@ depends_on:
 
 **Level**: 2 Contributor advanced
 
-**Time**: ~15 min
+**Time**: ~15 min<!-- observed --> (observed: median 16 min, 6 learners, fastest 5 min)<!-- /observed -->
 
 **You will**: bring a teammate's merged story into your own dev org, decide what to keep when the
 tool asks, and learn what a backpromote will never do for you.
@@ -203,6 +203,8 @@ other row does nothing:
 
 - **chore: the state a level 2 learner starts from** and **Keep my pipeline configuration**, if you
   reset: commits, not Pull Requests
+- **Point the pipeline at my training orgs**, if you did Level 1: the commit **Set up my training
+  environment** made in [Lab 1.2](../level-1-contributor-basics/1-2-create-your-dev-hub-scratch-orgs-and-pipeline.md)
 - dozens of commits of the course itself, which your `integration` inherited when you made your
   copy of the repository. Some end with a number in brackets, like **(#77)**: that is a Pull
   Request of the course repository, not of your fork. Your org has them already
@@ -296,6 +298,14 @@ And one thing it does that nobody expects the first time:
     next **Save / Publish** would see it as a change of yours and put it in your Pull Request. It
     does not ask when you are on the parent branch itself, or when your branch already has it.
 
+    One exception, and it is the case right after Level 1: the branch you come back to is a story
+    whose Pull Request is already merged, such as `features/US-016-crew-notes`. That branch is
+    finished: if VS Code asks, close the question instead of clicking **Merge `<parent>`**.
+    The merge would stop on a
+    conflict in the Installation layout, because `integration` holds your story as one squashed
+    commit with Romain's field next to it. [Lab 2.2](2-2-fix-a-missing-dependency-deployment-error.md)
+    starts a new story from `integration`, and that one has everything.
+
 The history is not on your computer either. sfdx-hardis records what reached your sandbox in a
 **Backpromotes comment** on each Pull Request it brought down, so the next backpromote knows where
 to start, from any machine and any teammate. That is also why the command needs a git provider
@@ -310,7 +320,8 @@ Command documentation: [hardis:work:backpromote](https://sfdx-hardis.cloudity.co
 ## What you should see
 
 Open `helios-dev` and check that Romain's story is there: open an installation, his **Signed Off
-By** field is at the bottom of the field column, under **Crew Notes**.
+By** field is at the bottom of the field column. The layout places it under **Crew Notes**, which
+you do not see on the record yourself: [Lab 1.7](../level-1-contributor-basics/1-7-capstone-deliver-a-user-story-on-your-own.md) granted that field to the crew only.
 
 ## If it goes wrong
 

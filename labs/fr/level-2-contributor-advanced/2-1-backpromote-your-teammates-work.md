@@ -5,7 +5,7 @@ description: "Votre org de développement est en retard sur integration. Faites-
 level: 2
 lab: 1
 lang: fr
-source_rev: "ad33e36183c04a1d20479fde8a198b7fa036c096"
+source_rev: "3adaccecec91d35e32668a5fd749b93863ff10c5"
 screenshots:
   - annotated/vscode/sidebar-commands-custom-menu-2--training-menu
   - annotated/web/github-pr-files
@@ -27,7 +27,7 @@ depends_on:
 
 **Niveau** : 2 Contributeur avancé
 
-**Durée** : ~15 min
+**Durée** : ~15 min<!-- observed --> (observé : médiane 16 min, 6 participants, le plus rapide 5 min)<!-- /observed -->
 
 **Vous allez** : rapatrier dans votre propre org de dev la story mergée par un collègue, décider
 quoi garder quand l'outil vous le demande, et apprendre ce qu'un backpromote ne fera jamais pour
@@ -213,6 +213,8 @@ clic sur une autre ligne ne fait rien :
 
 - **chore: the state a level 2 learner starts from** et **Keep my pipeline configuration**, si vous
   avez fait un reset : des commits, pas des Pull Requests
+- **Point the pipeline at my training orgs**, si vous avez fait le Niveau 1 : le commit que **Set up
+  my training environment** a créé dans le [Lab 1.2](../level-1-contributor-basics/1-2-create-your-dev-hub-scratch-orgs-and-pipeline.md)
 - des dizaines de commits du cours lui-même, dont votre `integration` a hérité quand vous avez fait
   votre copie du repository. Certains se terminent par un numéro entre parenthèses, comme
   **(#77)** : c'est une Pull Request du repository du cours, pas de votre fork. Votre org les a déjà
@@ -315,6 +317,15 @@ Et une chose qu'il fait et que personne n'attend la première fois :
     une modification à vous et la mettrait dans votre Pull Request. La question ne vient pas quand
     vous êtes sur la branche parente elle-même, ni quand votre branche l'a déjà.
 
+    Une exception, et c'est le cas juste après le Niveau 1 : la branche sur laquelle vous revenez
+    est une story dont la Pull Request est déjà mergée, comme `features/US-016-crew-notes`. Cette
+    branche est terminée : si VS Code pose la question, fermez-la au lieu de cliquer sur
+    **Merge `<parent>`**. Le merge
+    s'arrêterait sur un conflit dans le layout d'Installation, parce qu'`integration` contient votre
+    story en un seul commit squashé, avec le champ de Romain à côté.
+    Le [Lab 2.2](2-2-fix-a-missing-dependency-deployment-error.md) démarre une nouvelle story depuis
+    `integration`, qui a tout.
+
 L'historique n'est pas sur votre ordinateur non plus. sfdx-hardis note ce qui a atteint votre sandbox
 dans un **commentaire Backpromotes** sur chaque Pull Request qu'il a rapatriée, pour que le
 backpromote suivant sache où commencer, depuis n'importe quelle machine et n'importe quel collègue.
@@ -330,7 +341,8 @@ Documentation de la commande : [hardis:work:backpromote](https://sfdx-hardis.clo
 ## Ce que vous devez voir
 
 Ouvrez `helios-dev` et vérifiez que la story de Romain y est : ouvrez une installation, son champ
-**Signed Off By** est en bas de la colonne des champs, sous **Crew Notes**.
+**Signed Off By** est en bas de la colonne des champs. Le layout le place sous **Crew Notes**, que
+vous ne voyez pas vous-même sur l'enregistrement : le [Lab 1.7](../level-1-contributor-basics/1-7-capstone-deliver-a-user-story-on-your-own.md) n'a accordé ce champ qu'aux équipes.
 
 ## En cas de problème
 
