@@ -5,7 +5,7 @@ description: "Corrigez une trouvaille PMD et la couverture de code Apex qui bloq
 level: 2
 lab: 5
 lang: fr
-source_rev: "9c652820abe61fac27fa86bac9eba269af742274"
+source_rev: "b7cbcd96df80fd7a64c3dc45f9aa26da8ca2e9a6"
 screenshots:
   - annotated/vscode/pipeline-cards--new-user-story
   - annotated/vscode/org-monitoring--apex-tests
@@ -21,7 +21,7 @@ depends_on:
 
 **Niveau** : 2 Contributeur avancé
 
-**Durée** : ~30 min
+**Durée** : ~20 min<!-- observed --> (observé : médiane 23 min, 6 participants, le plus rapide 6 min)<!-- /observed -->
 
 **Vous allez** : être bloqué deux fois par des robots, corriger les deux correctement plutôt que de
 les contourner, et apprendre à lancer les contrôles avant de pousser.
@@ -74,7 +74,8 @@ Pipeline. Branche `US-027-schedule-by-availability`, cible `integration`, org `h
 Le planificateur veut vérifier plusieurs installations d'un coup. Ouvrez
 `force-app/main/default/classes/InstallationScheduler.cls`, le fichier que la pipeline déploie déjà,
 et collez-y la méthode ci-dessous, exactement comme l'a fait le développeur qui l'a écrite en
-premier. C'est la façon évidente de faire, et c'est bien le problème :
+premier. Elle va à la fin de la classe : juste au-dessus de la dernière ligne du fichier, qui est
+l'accolade `}` fermant la classe. C'est la façon évidente de faire, et c'est bien le problème :
 
 ```apex
     /**
@@ -125,7 +126,9 @@ cette méthode marche donc parfaitement pour un planificateur qui vérifie cinq 
 une. Elle passera tous les tests que vous écrirez et échouera un lundi chargé.
 
 La correction est le seul motif Apex qui mérite d'être connu par cœur : **interroger une fois, en
-dehors de la boucle, et indexer ce qu'on récupère**.
+dehors de la boucle, et indexer ce qu'on récupère**. Dans `InstallationScheduler.cls`, remplacez la
+méthode collée à l'étape 2, de sa ligne `public static List<Id> schedulableOn` à son accolade `}`
+fermante, par celle-ci, et gardez le commentaire au-dessus :
 
 ```apex
     public static List<Id> schedulableOn(List<Id> installationIds, Date wanted) {
@@ -176,7 +179,8 @@ le job de contrôle l'y tient.
 La version avec la boucle était courte, et l'org la portait à 81 %. La correction est plus longue, et
 chacune de ses nouvelles lignes est une ligne qu'aucun test n'exécute. Vous avez ajouté une méthode à
 trois branches et aucun test. Ajoutez-les dans
-`force-app/main/default/classes/InstallationSchedulerTest.cls` :
+`force-app/main/default/classes/InstallationSchedulerTest.cls`, de la même façon, juste au-dessus
+de la dernière accolade `}` du fichier :
 
 ```apex
     @isTest
@@ -233,6 +237,11 @@ Elle lance les tests Apex de l'org et vérifie le même seuil de couverture que 
 donc le succès, l'échec et le pourcentage sans rien pousser. Laissez-lui quelques minutes : une
 scratch org met ses exécutions de tests en file d'attente, et la première de la journée peut prendre
 dix minutes.
+
+Le pourcentage est celui de `helios-dev`, et ce n'est pas celui qu'affiche le contrôle. Les deux
+classes batch des Labs 2.3 et 2.4 sont allées dans `helios-integration` par la pipeline, et n'arrivent
+dans votre org que par un backpromote : d'ici là, `helios-dev` compte moins de lignes, et affiche plus. Ce que la carte vous dit
+à coup sûr, c'est si vos tests passent, et si votre propre classe est couverte.
 
 !!! note "La bannière du haut est normale"
     *Org Monitoring Not Present (CI/CD Repo)* veut dire que ce repository est une pipeline de livraison et

@@ -20,7 +20,7 @@ depends_on:
 
 **Level**: 1 Contributor basics
 
-**Time**: ~25 min
+**Time**: ~30 min<!-- observed --> (observed: median 31 min, 19 learners, fastest 11 min)<!-- /observed -->
 
 **You will**: do the whole loop again with no step-by-step, which is the only way to find out
 whether you learned it.
@@ -53,8 +53,8 @@ No numbered clicks this time. The loop, in order:
 1. **Start the User Story.** Branch `US-016-crew-notes`, target `integration`, then **Scratch org**
    and **Reuse scratch org helios-dev**. Your org already has US-014, because you built it there
 2. **Build it in `helios-dev`**
-   - A **Long Text Area** field `Crew_Notes__c` on `Installation__c`, 4000 characters, with a
-     description and help text
+   - A **Long Text Area** field `Crew_Notes__c` on `Installation__c`, the data type the field
+     wizard lists as **Text Area (Long)**, 4000 characters, with a description and help text
    - Grant it **Read** and **Edit** on `Helios Delivery Crew`, because a crew member writes notes.
      Nobody else gets it yet: the planners' turn comes in Level 2
    - On the Installation page layout
@@ -111,8 +111,10 @@ You finished Level 1.
 Welcome page > **Training: Level 1** > **Claim my badge**.
 
 It checks the whole level again first and refuses to claim anything that does not pass: a claim that
-would be rejected is a claim not worth opening. Then it opens the claim form of the training
-repository in your browser, with the level, your username, your fork (your own copy of the course repository on GitHub, for example `github.com/my-username/sfdx-hardis-training`) and your receipts already in
+would be rejected is a claim not worth opening. It then asks one question, your Trailblazer
+username, because your badge page links to your Trailhead profile: it is the last part of the
+address of that profile, and the command says where to find it. Then it opens the claim form of the training
+repository in your browser, with the level, that username, your fork (your own copy of the course repository on GitHub, for example `github.com/my-username/sfdx-hardis-training`) and your receipts already in
 it. One field is not filled in: pick your level in the **Level** dropdown, because GitHub does
 not prefill a dropdown from a link and the form refuses to submit while it says *None*. Then tick
 the three boxes and click **Create**.
@@ -154,3 +156,13 @@ teammate who edited the same flow as you.
 It is recommended for any contributor, and **required** before Level 3.
 
 [Continue to Level 2 - Contributor advanced](../level-2-contributor-advanced/index.md){ .md-button .md-button--primary }
+
+## On a real project
+
+Your own team has no pipeline like this one yet? Setting one up on an org with years of history in
+it is what [Cloudity](https://sfdx-hardis.cloudity.com/salesforce-devops-home/#get-help-from-cloudity), the company behind sfdx-hardis and this course, does for its
+customers: setup, training and support. It is one of its practices, next to Agentforce, Revenue
+Cloud, Field Service and [the others](https://cloudity.com/services/?utm_source=sfdx-hardis-training&utm_medium=referral&utm_campaign=capstone-1).
+
+[![Cloudity, Salesforce consulting: Agentforce, Data Cloud, Revenue Cloud, Field Service, Marketing Cloud, Integration, Managed Services, DevOps](../../_assets/brand/cloudity-services-en.png){ .cloudity-banner .wide-only loading=lazy }](https://cloudity.com/services/?utm_source=sfdx-hardis-training&utm_medium=referral&utm_campaign=capstone-1)
+[![Cloudity, Salesforce consulting: Agentforce, Data Cloud, Revenue Cloud, Field Service, Marketing Cloud, Integration, Managed Services, DevOps](../../_assets/brand/cloudity-services-en-narrow.png){ .cloudity-banner .narrow-only loading=lazy }](https://cloudity.com/services/?utm_source=sfdx-hardis-training&utm_medium=referral&utm_campaign=capstone-1)

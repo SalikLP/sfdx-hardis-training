@@ -5,7 +5,7 @@ description: "Générez une documentation lisible d'une org Salesforce non docum
 level: 3
 lab: 9
 lang: fr
-source_rev: "810d4dfb1955110f1f91b4b18f7de130b2a1cc98"
+source_rev: "62b20eb6316c945b052d7f2dd1a4787fa2e02d5e"
 screenshots:
   - annotated/vscode/documentation-workbench--generate-and-deploy
 depends_on:
@@ -20,7 +20,7 @@ depends_on:
 
 **Niveau** : 3 Release Manager
 
-**Durée** : ~20 min
+**Durée** : ~15 min<!-- observed --> (Labs 3.8 à 3.10 observés ensemble : médiane 1 h 46, 3 participants, le plus rapide 51 min)<!-- /observed -->
 
 **Vous allez** : produire une documentation lisible d'une org que personne n'a documentée depuis deux
 ans, à partir des sources que vous avez déjà.
@@ -44,6 +44,8 @@ est exactement celle qui mérite le temps d'une personne.
 ## Les étapes
 
 ### 1. Ouvrir le Documentation Workbench
+
+Depuis la Welcome page, cliquez sur la carte **Documentation Workbench**.
 
 ![Le Documentation Workbench, avec les parties à inclure, le bouton Generate et les cibles de publication](../../_assets/annotated/vscode/documentation-workbench--generate-and-deploy.png)
 
@@ -77,7 +79,10 @@ Quatre sortes de pages, et il vaut la peine de les distinguer :
 | **Pages Apex**                      | Les classes, leurs méthodes, leur ApexDoc                                                                                        | Un développeur                                                      |
 | **Pages de packages et de profils** | Ce qui est installé, ce que les permission sets accordent                                                                        | Un audit                                                            |
 
-Ouvrez `docs/objects/Installation__c.md`. Chaque champ que vous et vos collègues avez créé au fil des
+Ouvrez `docs/objects/Installation__c.md`. VS Code affiche un fichier markdown sous sa forme
+source : pour le lire comme une page, appuyez sur `Ctrl+Shift+V` (`Cmd+Shift+V` sur un Mac), ou
+faites un clic droit sur l'onglet du fichier et choisissez **Open Preview**. Faites de même pour
+chaque page que ce lab ouvre. Chaque champ que vous et vos collègues avez créé au fil des
 trois niveaux y est, avec les descriptions que vous avez écrites dans Setup.
 
 **Les champs sans description produisent une ligne avec une cellule vide.** C'est la sortie honnête,
@@ -213,9 +218,10 @@ rencontrez un.
 **Les pages d'objets sont presque vides.**
 Les sources sont là mais les descriptions non. C'est l'org, pas l'outil.
 
-**Le dossier docs est énorme et la Pull Request impossible à relire.**
-Attendu la première fois. Dites-le dans la description de la Pull Request. Les régénérations
-suivantes produisent de petits diffs.
+**Source Control liste des centaines de nouveaux fichiers sous `docs/`.**
+Il ne devrait en lister aucun : ce cours garde `docs/` et `mkdocs.yml` hors de git. Vérifiez que
+`.gitignore` les liste toujours, et ne les commitez pas. Un projet qui commite sa documentation a
+une première Pull Request énorme, et des petites ensuite.
 
 ## Vérifiez votre travail
 

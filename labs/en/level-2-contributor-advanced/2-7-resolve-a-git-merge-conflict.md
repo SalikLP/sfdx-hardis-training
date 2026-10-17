@@ -30,7 +30,7 @@ depends_on:
 
 **Level**: 2 Contributor advanced
 
-**Time**: ~35 min
+**Time**: ~35 min<!-- observed --> (observed: median 37 min, 6 learners, fastest 10 min)<!-- /observed -->
 
 **You will**: face a real merge conflict on two files that conflict very differently, and resolve
 both without losing anybody's work.
@@ -173,7 +173,9 @@ each with a **!** **(2)**, and the status bar says a merge is in progress.
 ![The Source Control panel with the conflicting files under Merge Changes](../../_assets/annotated/vscode/git-merge-conflicts--merge-changes.png)
 
 The picture lists only the permission set. Yours also lists the flow `Installation_Assign_Crew`,
-with its own **!**: two files, as GitHub said.
+with its own **!**: two files, as GitHub said. Under **Staged Changes**, two more files wait, the
+field Mariia created and the layout she changed: git merged those on its own. Leave them there, they
+are part of the merge.
 
 <details markdown="1"><summary>Under the hood: what Merge Branch ran</summary>
 
@@ -320,8 +322,9 @@ not intend, which no check catches and no test in this project covers.
 ### 7. Finish the merge and re-validate
 
 **Complete Merge** moved each file from **Merge Changes** to **Staged Changes**. When both are
-there, the message box already reads `Merge remote-tracking branch 'origin/integration'`: click
-**Commit**, then **Sync Changes** to push.
+there, the message box already reads `Merge remote-tracking branch 'origin/integration' into
+features/US-034-crew-override`, and the blue button under it reads **Continue** while a merge is in
+progress: click it, then **Sync Changes** to push.
 
 Then **re-publish**: **Save / Publish User Story**. This matters. The merge produced XML by hand,
 and publishing re-runs the cleaning rules over it and rebuilds `manifest/package.xml` from what your

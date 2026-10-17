@@ -4,12 +4,12 @@ description: "Tenez une pipeline CI/CD Salesforce avec sfdx-hardis : environneme
 id: l3-home
 level: 3
 lang: fr
-source_rev: "1651e48fae090ca8a17bcdbaee369e4501394d2a"
+source_rev: "bcc268319ac55487e11909a57a6dc1416cde8157"
 ---
 
 # Niveau 3 - Release manager Salesforce DevOps
 
-**Durée** : environ 6 h 55.
+**Durée** : environ 8 h.
 
 **Prérequis** : le [Niveau 1](../level-1-contributor-basics/index.md) **et** le
 [Niveau 2](../level-2-contributor-advanced/index.md). Les deux sont obligatoires, et l'audit du
@@ -22,7 +22,7 @@ autres. C'est exactement ce que le Niveau 2 vous fait traverser. Quelqu'un qui n
 erreur de déploiement ne peut pas juger si un contributeur a bien résolu la sienne, et les revues
 qu'il fera porteront sur la mise en forme.
 
-Si vous avez sauté le Niveau 2, faites-le. Ce sont quatre heures, et c'est la différence entre
+Si vous avez sauté le Niveau 2, faites-le. Ce sont quelques heures, et c'est la différence entre
 approuver des Pull Requests et les comprendre.
 
 ## L'histoire
@@ -78,17 +78,17 @@ Les mêmes commandes sont dans la vue **SFDX HARDIS** de la barre de gauche, sou
 
 | Lab                                                       | Titre                                                          | Durée  |
 |-----------------------------------------------------------|----------------------------------------------------------------|--------|
-| [3.1](3-1-configure-the-pipeline-up-to-production.md)     | Configurer la pipeline CI/CD jusqu'à la production             | 50 min |
-| [3.2](3-2-review-a-contributor-pull-request.md)           | Relire et merger la Pull Request d'un contributeur             | 25 min |
-| [3.3](3-3-deploy-to-integration-and-read-the-log.md)      | Lire le log de déploiement, et ce que .forceignore lui cache   | 45 min |
+| [3.1](3-1-configure-the-pipeline-up-to-production.md)     | Configurer la pipeline CI/CD jusqu'à la production             | 1 h 05 |
+| [3.2](3-2-review-a-contributor-pull-request.md)           | Relire et merger la Pull Request d'un contributeur             | 20 min |
+| [3.3](3-3-deploy-to-integration-and-read-the-log.md)      | Lire le log de déploiement, et ce que .forceignore lui cache   | 1 h 15 |
 | [3.4](3-4-merge-colliding-pull-requests.md)               | Trois Pull Requests se percutent : choisir l'ordre de merge    | 35 min |
 | [3.5](3-5-promote-to-uat-and-write-release-notes.md)      | Promouvoir en UAT et écrire les notes de version               | 35 min |
-| [3.6](3-6-release-to-production-and-read-dora-metrics.md) | Livrer en production et lire vos métriques DORA                | 35 min |
-| [3.7](3-7-hotfix-and-retrofit.md)                         | La production est cassée : hotfix et retrofit                  | 35 min |
-| [3.8](3-8-monitor-your-production-org.md)                 | Monitorer votre org de production                              | 35 min |
-| [3.9](3-9-generate-the-project-documentation.md)          | Générer la documentation du projet Salesforce                  | 20 min |
-| [3.10](3-10-promote-a-subset-with-promotion-branches.md)  | Promouvoir un sous-ensemble avec les promotion branches (Beta) | 55 min |
-| [3.11](3-11-capstone-run-a-weekly-release-cycle.md)       | Épreuve finale : mener un cycle de release hebdomadaire        | 45 min |
+| [3.6](3-6-release-to-production-and-read-dora-metrics.md) | Livrer en production et lire vos métriques DORA                | 1 h 10 |
+| [3.7](3-7-hotfix-and-retrofit.md)                         | La production est cassée : hotfix et retrofit                  | 50 min |
+| [3.8](3-8-monitor-your-production-org.md)                 | Monitorer votre org de production                              | 30 min |
+| [3.9](3-9-generate-the-project-documentation.md)          | Générer la documentation du projet Salesforce                  | 15 min |
+| [3.10](3-10-promote-a-subset-with-promotion-branches.md)  | Promouvoir un sous-ensemble avec les promotion branches (Beta) | 50 min |
+| [3.11](3-11-capstone-run-a-weekly-release-cycle.md)       | Épreuve finale : mener un cycle de release hebdomadaire        | 20 min |
 
 ## Une org de plus
 
@@ -100,11 +100,13 @@ Avant le Lab 3.1, inscrivez-vous à une org Developer Edition gratuite de plus s
 [developer.salesforce.com/signup](https://developer.salesforce.com/signup) et connectez-la dans
 **Orgs Manager** avec l'alias `helios-preprod`. Alimentez ensuite les deux orgs Developer Edition
 avec **Training: Level 3 > Set up one of my training orgs** : `helios-preprod`, et `helios-prod`,
-qui jusqu'ici ne faisait que créer les autres et ne contenait rien.
+qui jusqu'ici ne faisait que créer les autres et ne contenait rien. S'il s'arrête sur
+`Profile Helios Crew`, la section **En cas de problème** du
+[Lab 3.1](3-1-configure-the-pipeline-up-to-production.md) dit pourquoi.
 
 `helios-prod` reçoit les mêmes sources que les autres orgs. Rien n'alimente un historique de
-déploiement : le rapport DORA du Lab 3.6 ne voit donc que l'alimentation et les déploiements que vous
-faites vous-même.
+déploiement, et l'alimentation elle-même n'est pas un déploiement du pipeline : les métriques DORA
+du Lab 3.6 ne contiennent donc que les jobs de déploiement que vos propres merges ont lancés.
 
 Si une scratch org a expiré depuis le Niveau 2, **Training: Level 3 > Set up my training
 environment** la reconstruit d'abord.
