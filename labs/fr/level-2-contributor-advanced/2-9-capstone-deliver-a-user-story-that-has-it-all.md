@@ -5,7 +5,7 @@ description: "Livrez une User Story Salesforce avec une dépendance à vérifier
 level: 2
 lab: 9
 lang: fr
-source_rev: "cfe1dcea647583a742b1ae3fdbd4c161e30eb765"
+source_rev: "7f50cabe5f249660c8efa0fcd8bd78bc7eb863b0"
 screenshots:
   - annotated/web/github-star-megalinter
 depends_on:
@@ -20,7 +20,7 @@ depends_on:
 
 **Niveau** : 2 Contributeur avancé
 
-**Durée** : ~30 min
+**Durée** : ~40 min<!-- observed --> (observé : médiane 41 min, 6 participants, le plus rapide 11 min)<!-- /observed -->
 
 **Vous allez** : livrer une story qui contient une dépendance à vérifier, une deployment action de
 données et un collègue qui travaille sur le même permission set, sans pas-à-pas.
@@ -51,30 +51,48 @@ savez déjà traiter les trois.
 ### La story
 
 1. **Prenez-la.** Nom `US-041-handover-checklist`, org `helios-dev`
-2. **Construisez l'objet** : `Handover_Item__c`, avec `External_Id__c` (Text 40, identifiant externe,
-   unique), `Installation__c` (lookup), `Label__c`, `Sequence__c`, `Is_Done__c`, `Is_Template__c`
-3. **Construisez les données de référence** : 10 enregistrements `Handover_Item__c` modèles sans
+2. **Construisez l'objet** : `Handover_Item__c`, son **Record Name** en Auto Number
+   `Handover Item Number`, `HI-{00000}`, **Starting Number** à `0`, comme le [Lab 2.4](2-4-ship-reference-data-and-a-batch-with-deployment-actions.md) pour Crew Capacity, avec `External_Id__c`
+   (Text 40, identifiant externe, unique), `Installation__c` (Lookup vers Installation), `Label__c`
+   (Text 255), `Sequence__c` (Number 3, 0), `Is_Done__c` et `Is_Template__c` (Checkbox, décochées).
+   En le créant, cochez **Launch New Custom Tab Wizard after saving this custom object**, choisissez
+   n'importe quel style d'onglet et gardez les autres valeurs par défaut de l'assistant : l'onglet est
+   ce qui vous mène aux enregistrements à l'étape 4
+3. **Accordez le nouvel objet et ses champs**, avant de créer le moindre enregistrement : sur le
+   permission set `Helios Delivery Manager`, jamais sur un profil, comme le [Lab 2.6](2-6-permission-sets-and-profiles.md) vous l'a fait faire : **Read**, **Create** et **Edit** sur
+   Handover Item, et **Read** et **Edit** sur ses champs. Vous portez ce permission set dans
+   `helios-dev` : c'est l'accès dont les enregistrements et le flow des deux étapes suivantes ont
+   besoin. L'utilisateur de la pipeline le porte lui aussi, et le chargement de données du deuxième
+   piège en a besoin, comme au [Lab 2.4](2-4-ship-reference-data-and-a-batch-with-deployment-actions.md)
+4. **Construisez les données de référence** : 10 enregistrements `Handover_Item__c` modèles sans
    installation, la checklist dont part chaque chantier. **Vous les créez à la main, dans
-   `helios-dev`**, comme n'importe quel enregistrement : ouvrez l'org depuis **Orgs Manager**, puis
-   remplacez tout ce qui suit `salesforce.com` dans la barre d'adresse par
-   `/lightning/o/Handover_Item__c/list` (l'objet n'a pas d'onglet, et cette page fonctionne sans).
-   Cliquez dix fois sur **New**. Pour chaque enregistrement, donnez un **External Id**
+   `helios-dev`**, comme n'importe quel enregistrement : ouvrez l'org depuis **Orgs Manager**,
+   cherchez **Handover Items** dans l'App Launcher, et cliquez dix fois sur **New**. Pour chaque enregistrement, donnez un **External Id**
    (`HANDOVER-TPL-01` à `HANDOVER-TPL-10`), un **Label** (`Panels fixed and torqued`,
    `Inverter commissioned`, `Isolator labelled`...), une **Sequence** (10, 20, 30...), cochez
    **Is Template**, et laissez **Installation** vide
-4. **Mettez à jour le contrôle de clôture** : le flow `Installation Close Check` refuse déjà de
+5. **Mettez à jour le contrôle de clôture** : le flow `Installation Close Check` refuse déjà de
    clôturer une installation sans date d'installation. Enregistrez-en une nouvelle version qui
    refuse aussi tant qu'un élément de handover lié n'est pas fait : après sa décision sur la date, un
    **Get Records** d'un `Handover Item` de cette installation avec `Is Done` à faux, une décision sur
    le fait qu'on en a trouvé un, et une **Custom Error**. Décrivez chaque élément que vous ajoutez,
    et donnez un fault path au Get Records, comme le [Lab 2.2](2-2-fix-a-missing-dependency-deployment-error.md) vous l'a fait faire
-5. **Accordez le nouvel objet et ses champs** sur le permission set `Helios Delivery Manager`, jamais
-   sur un profil, comme le [Lab 2.6](2-6-permission-sets-and-profiles.md) vous l'a fait faire : **Read**, **Create** et **Edit** sur
-   Handover Item, et **Read** et **Edit** sur ses champs. L'utilisateur de la pipeline porte lui aussi
-   ce permission set, et le chargement de données du deuxième piège en a besoin, comme au [Lab 2.4](2-4-ship-reference-data-and-a-batch-with-deployment-actions.md)
 6. **Faites un retrieve** : **Commit changes**, **Recent Changes**, et prenez ce que vous avez fait
-   et rien d'autre. Commitez
-7. **Publiez, Pull Request, vert, merge**
+   et rien d'autre, onglet compris. L'assistant d'onglet a aussi touché des profils et des
+   applications : laissez ces lignes. Commitez
+7. **Comptez avant de pousser** : ce que vous avez créé, puis la même chose dans `force-app/`
+   (**Une**, ci-dessous)
+8. **Mergez d'abord le collègue** : simulez US-019, mergez-la, ramenez `integration` dans votre
+   branche, et vérifiez que le permission set porte les deux droits (**Trois**, ci-dessous)
+9. **Construisez le workspace de données** des dix enregistrements, comme au [Lab 2.4](2-4-ship-reference-data-and-a-batch-with-deployment-actions.md), et commitez-le
+   (**Deux**, ci-dessous)
+10. **Publiez et ouvrez la Pull Request** vers `integration`, et lisez le rapport **Git Delta
+    package.xml** : chaque composant compté à l'étape 7 y figure
+11. **Déclarez l'action de données** sur la Pull Request, puis commitez le fichier écrit par
+    l'éditeur et publiez à nouveau (**Et l'action de données**, ci-dessous)
+12. **Vert, puis merge** avec **Squash and merge**
+
+Les sections ci-dessous expliquent pourquoi chacune de ces étapes est à sa place.
 
 ### Les trois choses qui vous attendent
 
@@ -151,9 +169,10 @@ Neuf contrôles.
 
 Welcome page > **Training: Level 2** > **Claim my badge**.
 
-Comme au Niveau 1 : il recontrôle tout ce qui précède et ouvre le formulaire de demande déjà rempli.
-Choisissez votre niveau dans la liste **Level**, qu'un lien ne peut pas pré-remplir, puis cochez les
-trois cases et soumettez.
+Comme au Niveau 1 : il recontrôle tout ce qui précède, demande votre nom d'utilisateur Trailblazer,
+la dernière partie de l'adresse de votre profil Trailhead, et ouvre le formulaire de demande déjà
+rempli. Choisissez votre niveau dans la liste **Level**, qu'un lien ne peut pas pré-remplir, puis
+cochez les trois cases et soumettez.
 
 Une demande de Niveau 2 rejoue **aussi l'audit du Niveau 1**, parce que le badge dit que vous savez
 faire les deux. Si vous avez sauté le Niveau 1, c'est là qu'il le dira, et la commande le dit avant
@@ -188,3 +207,14 @@ Le projet auquel vous avez contribué s'arrête à `integration` : pas d'UAT, pa
 d'authentification de CI correcte, pas de monitoring. Le Niveau 3, c'est le terminer.
 
 [Continuer vers le Niveau 3 - Release Manager](../level-3-release-manager/index.md){ .md-button .md-button--primary }
+
+## Sur un vrai projet
+
+Tout ce que le Niveau 2 a mis sur votre route arrive aussi sur les vrais projets, en général le jour
+d'une release. [Cloudity](https://sfdx-hardis.cloudity.com/salesforce-devops-home/#get-help-from-cloudity), la société derrière sfdx-hardis et ce cours, forme les équipes
+de delivery et reste joignable après la mise en production. Elle mène aussi ses propres projets
+Salesforce, d'Agentforce et Revenue Cloud à Field Service :
+[voir ce qu'elle fait](https://cloudity.com/fr/services/?utm_source=sfdx-hardis-training&utm_medium=referral&utm_campaign=capstone-2).
+
+[![Cloudity, conseil Salesforce : Agentforce, Data Cloud, Revenue Cloud, Field Service, Marketing Cloud, intégration, services managés, DevOps](../../_assets/brand/cloudity-services-fr.png){ .cloudity-banner .wide-only loading=lazy }](https://cloudity.com/fr/services/?utm_source=sfdx-hardis-training&utm_medium=referral&utm_campaign=capstone-2)
+[![Cloudity, conseil Salesforce : Agentforce, Data Cloud, Revenue Cloud, Field Service, Marketing Cloud, intégration, services managés, DevOps](../../_assets/brand/cloudity-services-fr-narrow.png){ .cloudity-banner .narrow-only loading=lazy }](https://cloudity.com/fr/services/?utm_source=sfdx-hardis-training&utm_medium=referral&utm_campaign=capstone-2)

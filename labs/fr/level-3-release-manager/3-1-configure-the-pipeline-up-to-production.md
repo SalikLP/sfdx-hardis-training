@@ -5,7 +5,7 @@ description: "Étendez une pipeline Salesforce à deux étages jusqu'à la produ
 level: 3
 lab: 1
 lang: fr
-source_rev: "5004bd9b727a032b01a8e13fa1eefb935db726e7"
+source_rev: "f7a4cfc638bef7f4aea6283c123b557910f877d4"
 screenshots:
   - annotated/vscode/devops-pipeline--one-column
   - annotated/web/github-new-branch
@@ -21,6 +21,7 @@ screenshots:
   - annotated/vscode/pipeline-config--target-branches
   - annotated/vscode/pipeline-config-user-stories--target-branches
   - annotated/vscode/pipeline-config-danger--promotion-branches
+  - annotated/vscode/pipeline-config-branch-merge-target
   - annotated/vscode/pipeline-cards--save-publish
   - annotated/vscode/work-save-completed
   - annotated/vscode/devops-pipeline-level3--four-stages
@@ -36,7 +37,7 @@ depends_on:
 
 **Niveau** : 3 Release Manager
 
-**Durée** : ~50 min
+**Durée** : ~1 h 05<!-- observed --> (observé : médiane 1 h 07, 6 participants, le plus rapide 17 min)<!-- /observed -->
 
 **Vous allez** : transformer une pipeline à deux étages en une pipeline à quatre étages qui atteint la
 production, donner aux deux nouveaux étages leur org et un identifiant avec lequel un vrai projet peut
@@ -92,7 +93,11 @@ a besoin de livrer correctement.
       [developer.salesforce.com/signup](https://developer.salesforce.com/signup) exactement comme la
       première, et connectée dans **Orgs Manager** avec l'alias `helios-preprod`
 - [ ] Les deux alimentées : Welcome page > **Training: Level 3** > **Set up one of my training
-      orgs**, une fois pour `helios-preprod` et une fois pour `helios-prod`
+      orgs**, une fois pour `helios-preprod` et une fois pour `helios-prod`. La commande commence
+      par passer votre utilisateur en anglais dans cette org, s'il ne l'est pas déjà : on travaille
+      dans une seule langue dans toutes les orgs d'un pipeline, parce que Salesforce nomme les
+      présentations de page qu'il crée dans la langue de l'utilisateur au travail, et qu'un profil
+      attribue une présentation de page par son nom
 - [ ] `SFDX_AUTH_URL_INTEGRATION` et `SFDX_AUTH_URL_UAT` toujours dans votre fork, comme depuis le
       Niveau 1 : ce lab n'y touche pas
 - [ ] Sur `integration` dans VS Code, avec rien en attente dans le panneau **Source Control**
@@ -150,6 +155,10 @@ contrôles sont verts, et GitHub l'impose au lieu de faire confiance à chacun p
 Depuis le [Lab 1.2](../level-1-contributor-basics/1-2-create-your-dev-hub-scratch-orgs-and-pipeline.md), `integration` et `uat` fonctionnent ainsi : la mise en place de l'environnement
 les a protégées. `preprod` et `main` sont à vous de protéger, et un release manager le fait le jour
 où les branches rejoignent la pipeline, pas après le premier mauvais merge.
+
+Votre fork vous donne une deuxième raison. Il supprime une branche une fois sa Pull Request mergée,
+et une release est une Pull Request dont la source est `preprod`. Seule une branche protégée est
+conservée : sans sa règle, `preprod` partirait avec votre première release.
 
 Dans votre fork (`github.com/my-username/sfdx-hardis-training`), cliquez sur **Settings** **(1)**,
 puis **Branches** **(2)** dans le menu de gauche. Les deux règles **(4)** sont celles que la mise en
@@ -281,9 +290,10 @@ Elle pose une douzaine de questions, dans cet ordre :
    variables + encrypted certificate as file (default)**. L'autre mode met le certificat lui-même
    dans un troisième secret et supprime le fichier
 9. **Please confirm when variables have been set.** Celle-ci est un arrêt, et l'étape 6 est ce
-   qu'elle attend. Ne cliquez pas encore sur **Validate**
-10. Puis, après votre confirmation : le **nom** de l'External Client App, un **e-mail de contact**,
-    et le **profil à pré-autoriser**. Prenez **System Administrator** : il est déjà sélectionné,
+   qu'elle attend. C'est une question **Yes** ou **No** : n'y répondez pas encore
+10. Trois questions suivent une fois que vous avez répondu **Yes**, c'est-à-dire à la fin de
+    l'étape 6 ci-dessous : lisez-les maintenant, vous y répondrez à ce moment-là. Le **nom** de
+    l'External Client App, un **e-mail de contact**, et le **profil à pré-autoriser**. Prenez **System Administrator** : il est déjà sélectionné,
     gardez-le. La liste affiche les noms de profils dans la langue de l'utilisateur de l'org : une
     org réglée en français liste donc `Administrateur système` à la place
 
@@ -333,7 +343,7 @@ majuscules**. C'est toute la convention, et c'est pourquoi les noms ne sont pas 
     lisez son bloc `env:` une fois, parce que sur votre propre projet ce bloc, c'est à vous de
     l'écrire.
 
-Cliquez maintenant sur **Validate** à la question 9, répondez aux trois dernières questions, et
+Répondez maintenant **Yes** à la question 9, répondez aux trois dernières questions, et
 laissez la commande créer l'application.
 
 Ce qu'elle a écrit, et où :
@@ -358,8 +368,9 @@ la commande a déjà faite : l'External Client App qu'elle déploie porte
 Regardez-la une fois, pour savoir où elle est le jour où cela compte.
 
 Dans `helios-preprod` : **Setup > External Client App Manager**, ouvrez l'application, dont le
-nom par défaut était `sfdxhardispreprod`, puis **Policies**. Permitted Users affiche
-*Admin approved users are pre-authorized*, et le profil est listé.
+nom par défaut était `sfdxhardispreprod`. Au-dessus des onglets, **App Authorization** affiche
+*Admin approved users are pre-authorized*. Dans l'onglet **Policies**, sous **App Policies**,
+**Selected Profiles** liste le profil.
 
 Cela compte à cause du seul chemin où ce n'est **pas** fait pour vous : si le déploiement de
 l'application échoue et que la commande retombe sur l'affichage d'instructions manuelles, ces
@@ -375,10 +386,26 @@ Même engrenage, **Add/Configure Org**, une fois de plus, pour la production :
 |---------|---------------|----------------------------------------------------------------------------|----------------|-----------------------------------------------|
 | `main`  | `helios-prod` | **☢️ Other: Dev org, Production org or DevHub org (login.salesforce.com)** | ne cochez rien | `SFDX_CLIENT_ID_MAIN`, `SFDX_CLIENT_KEY_MAIN` |
 
+Une réponse diffère de celles de `preprod`. À **What are the target git branches that main will be
+able to merge in?**, la liste propose `integration`, `uat` et `preprod` : **n'en cochez aucune**
+et validez la réponse vide. `main` est la fin du pipeline, et ne merge dans rien.
+
 Vérifiez l'org deux fois : pointer la production vers la mauvaise org est l'erreur la plus coûteuse
 disponible dans ce lab. Et stockez les deux secrets, l'ID et la clé, comme à l'étape 6.
 
 Quatre secrets, deux External Client Apps, deux clés. Fastidieux une fois, puis plus jamais.
+
+**Dites ensuite à `uat` où va son travail.** La commande a écrit que `preprod` se merge dans
+`main`. Rien n'a encore dit que `uat` se merge dans `preprod` : jusqu'ici `uat` était la fin du
+pipeline, et son fichier de branche le dit. Dans le panneau **DevOps Pipeline**, menu engrenage,
+**Pipeline Settings**, passez le sélecteur de portée en haut à droite sur **Branch: uat** **(1)**,
+ouvrez l'onglet **Deployment** **(2)** et cliquez sur **Edit**. Dans **Merge target branches**
+**(3)**, saisissez `preprod`, puis **Save** **(4)**, qui a pris la place d'**Edit**.
+
+![L'onglet Deployment des réglages de la branche uat, déverrouillé, avec preprod comme cible de merge](../../_assets/annotated/vscode/pipeline-config-branch-merge-target.png)
+
+Sans cela le diagramme ne dessine aucune flèche de `uat` vers `preprod`, et le [Lab 3.6](3-6-release-to-production-and-read-dora-metrics.md) n'a pas
+de pastille **+ PR** où cliquer. L'étape 11 le publie avec le reste.
 
 ### 9. Laisser les contributeurs démarrer un hotfix
 
@@ -482,8 +509,11 @@ Request aux contrôles verts. La protection de l'étape 3 refuserait tout le res
 Vous les publiez comme vous avez publié une User Story au Niveau 1, avec les mêmes boutons.
 
 **Commitez-les.** Dans le panneau **Source Control**, stagez les fichiers de configuration et
-commitez-les sous `Configure the pipeline up to production`, exactement comme vous stagiez de la
+commitez-les sous `US-050 Configure the pipeline up to production`, exactement comme vous stagiez de la
 métadonnée au [Lab 1.5](../level-1-contributor-basics/1-5-retrieve-commit-and-publish-your-changes.md).
+Gardez le numéro de la story au début, et vérifiez que le titre de la Pull Request commence aussi
+par lui, quitte à le corriger : ce titre devient le commit du squash, et c'est lui qui relie
+cette configuration à US-050 dans les release notes du [Lab 3.5](3-5-promote-to-uat-and-write-release-notes.md), bien après la disparition du nom de branche.
 
 **Publiez.** Dans le panneau **DevOps Pipeline**, cliquez sur la carte **Save / Publish** **(1)**,
 celle par laquelle chaque story est passée depuis le [Lab 1.5](../level-1-contributor-basics/1-5-retrieve-commit-and-publish-your-changes.md). Elle ne demande pas la branche cible :
@@ -683,10 +713,27 @@ commit et tout fichier pas encore commité. Puis relancez **Save / Publish**. Si
 fichier de configuration que vous avez modifié a aussi été modifié sur GitHub, tirez dans le panneau
 **Source Control**, puis republiez.
 
+**GitHub affiche une page Confirm access quand vous cliquez sur Create, ou sur Add secret.**
+GitHub redemande qui vous êtes avant un changement sensible, quand vous ne l'avez pas confirmé
+depuis quelques heures. Confirmez avec la méthode proposée, GitHub Mobile, une passkey ou un code
+par e-mail. Regardez ensuite la liste : si la règle ou le secret n'y est pas, remplissez le
+formulaire à nouveau.
+
 **Le contrôle que vous voulez exiger n'est pas proposé.**
 GitHub ne liste que les contrôles qui ont rendu compte sur ce repository dans les sept derniers
 jours. Ouvrez une Pull Request vers `integration`, laissez ses contrôles tourner, et revenez à la
 règle.
+
+**La Pull Request attend sur `Expected - Waiting for status to be reported`, et son onglet Checks
+est vide.**
+Rien n'a tourné : GitHub n'a pas lancé les workflows de votre fork, donc les deux contrôles que ce
+lab a rendus obligatoires n'ont jamais rendu compte, et le merge les attend. Ouvrez l'onglet
+**Actions** de votre fork (`github.com/my-username/sfdx-hardis-training`). Un bandeau avec **I
+understand my workflows, go ahead and enable them** veut dire qu'Actions est coupé : cliquez dessus.
+Sans bandeau, ouvrez **Settings > Actions > General** et vérifiez qu'Actions est autorisé. Ensuite,
+sur votre branche de User Story, lancez **Training: Level 1 > Trigger my workflows** : il vérifie
+que les workflows ont le droit de tourner, et pousse une ligne, ce qui lance les contrôles d'une
+Pull Request ouverte quand ils ne le pouvaient pas.
 
 **Set up my training environment échoue avec `There is already a Child Relationship named
 Installations on Account`.**
@@ -699,6 +746,15 @@ laisser **Set up my training environment** en construire un nouveau.
 **Set up one of my training orgs échoue sur `helios-prod`.**
 La cause habituelle est une connexion expirée : reconnectez-la dans **Orgs Manager** sous le même
 alias, et relancez.
+
+**Set up one of my training orgs échoue sur `Profile Helios Crew`, avec `no Layout named ...` ou
+`no CustomTab named ...`.**
+Le profil que vous avez publié au [Lab 2.6](../level-2-contributor-advanced/2-6-permission-sets-and-profiles.md)
+nomme une présentation de page ou un onglet que votre scratch org a et que cette org Developer
+Edition n'a pas. C'est la première fois que ce profil rencontre une org d'un autre genre, d'où
+l'erreur ici et pas plus tôt. La section **En cas de problème** du [Lab 2.6](../level-2-contributor-advanced/2-6-permission-sets-and-profiles.md) explique comment trouver
+laquelle des deux orgs fait exception, et quoi changer. Une fois le correctif mergé dans
+`integration`, revenez dessus, **Pull**, et relancez **Set up one of my training orgs**.
 
 ## Vérifiez votre travail
 
